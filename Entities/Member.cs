@@ -1,9 +1,5 @@
-public class Member
+public class Member : User
 {
-    public int MemberID { get; set; }
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
     public string Phone { get; set; }
     public string MembershipID { get; set; }
     public int TotalOrdersCount { get; set; }
