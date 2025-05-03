@@ -1,3 +1,5 @@
+using BookHaven.Entities;
+
 public class Book
 {
     public int BookID { get; set; }

@@ -4,4 +4,8 @@ public interface IUserService
     Task<User?> LoginAsync(string email, string password);
     Task<List<Member>> GetAllMembersAsync();
     Task<List<Admin>> GetAllAdminsAsync();
+    Task<User?> FindByEmailAsync(string email);
+    Task<User?> GetByIdAsync(int id);
+
+
 }

@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using BookHaven.Entities;
-using BookHaven.Services.Interfaces;
+//using Microsoft.AspNetCore.Authorization;
 using BookHaven.DTOs;
+
 
 namespace BookHaven.Controllers
 {
+
+    //[Authorize]
     [ApiController]
     [Route("api/user")]
     public class UserController : ControllerBase
