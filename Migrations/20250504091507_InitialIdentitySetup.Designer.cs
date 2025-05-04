@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookHaven.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250503171943_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250504091507_InitialIdentitySetup")]
+    partial class InitialIdentitySetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,11 +33,9 @@ namespace BookHaven.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AnnouncementID"));
 
-                    b.Property<int>("AdminUserID")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
@@ -55,7 +53,7 @@ namespace BookHaven.Migrations
 
                     b.HasKey("AnnouncementID");
 
-                    b.HasIndex("AdminUserID");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Announcements");
                 });
@@ -85,8 +83,9 @@ namespace BookHaven.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BookID"));
 
-                    b.Property<int>("AdminID")
-                        .HasColumnType("integer");
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -131,7 +130,7 @@ namespace BookHaven.Migrations
 
                     b.HasKey("BookID");
 
-                    b.HasIndex("AdminID");
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("PublisherID");
 
@@ -168,7 +167,86 @@ namespace BookHaven.Migrations
                     b.ToTable("BookGenres");
                 });
 
-            modelBuilder.Entity("BookHaven.Entities.Bookmark", b =>
+            modelBuilder.Entity("BookHaven.Entities.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MembershipId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<int>("SuccessfulOrderCount")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Bookmark", b =>
                 {
                     b.Property<int>("BookmarkID")
                         .ValueGeneratedOnAdd()
@@ -176,25 +254,26 @@ namespace BookHaven.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BookmarkID"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("BookID")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("MemberID")
-                        .HasColumnType("integer");
-
                     b.HasKey("BookmarkID");
 
-                    b.HasIndex("BookID");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("MemberID");
+                    b.HasIndex("BookID");
 
                     b.ToTable("Bookmarks");
                 });
 
-            modelBuilder.Entity("BookHaven.Entities.CartItem", b =>
+            modelBuilder.Entity("CartItem", b =>
                 {
                     b.Property<int>("CartItemID")
                         .ValueGeneratedOnAdd()
@@ -205,13 +284,11 @@ namespace BookHaven.Migrations
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("AdminUserID")
-                        .HasColumnType("integer");
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("BookID")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MemberID")
                         .HasColumnType("integer");
 
                     b.Property<int>("Quantity")
@@ -219,11 +296,9 @@ namespace BookHaven.Migrations
 
                     b.HasKey("CartItemID");
 
-                    b.HasIndex("AdminUserID");
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("BookID");
-
-                    b.HasIndex("MemberID");
 
                     b.ToTable("CartItems");
                 });
@@ -245,6 +320,138 @@ namespace BookHaven.Migrations
                     b.ToTable("Genres");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
             modelBuilder.Entity("Order", b =>
                 {
                     b.Property<int>("OrderID")
@@ -253,8 +460,9 @@ namespace BookHaven.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderID"));
 
-                    b.Property<int?>("AdminUserID")
-                        .HasColumnType("integer");
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimCode")
                         .IsRequired()
@@ -264,9 +472,6 @@ namespace BookHaven.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<int>("DiscountPercent")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MemberID")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("OrderDate")
@@ -281,9 +486,7 @@ namespace BookHaven.Migrations
 
                     b.HasKey("OrderID");
 
-                    b.HasIndex("AdminUserID");
-
-                    b.HasIndex("MemberID");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Orders");
                 });
@@ -342,8 +545,9 @@ namespace BookHaven.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewID"));
 
-                    b.Property<int?>("AdminUserID")
-                        .HasColumnType("integer");
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("BookID")
                         .HasColumnType("integer");
@@ -351,9 +555,6 @@ namespace BookHaven.Migrations
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("MemberID")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
@@ -363,101 +564,29 @@ namespace BookHaven.Migrations
 
                     b.HasKey("ReviewID");
 
-                    b.HasIndex("AdminUserID");
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("BookID");
-
-                    b.HasIndex("MemberID");
 
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("User", b =>
-                {
-                    b.Property<int>("UserID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserID"));
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MembershipId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("SuccessfulOrderCount")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserID");
-
-                    b.ToTable("Users");
-
-                    b.HasDiscriminator().HasValue("User");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("Admin", b =>
-                {
-                    b.HasBaseType("User");
-
-                    b.HasDiscriminator().HasValue("Admin");
-                });
-
-            modelBuilder.Entity("Member", b =>
-                {
-                    b.HasBaseType("User");
-
-                    b.Property<string>("MembershipID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TotalOrdersCount")
-                        .HasColumnType("integer");
-
-                    b.HasDiscriminator().HasValue("Member");
-                });
-
             modelBuilder.Entity("Announcement", b =>
                 {
-                    b.HasOne("Admin", "Admin")
-                        .WithMany("Announcements")
-                        .HasForeignKey("AdminUserID")
+                    b.HasOne("BookHaven.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Admin");
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("Book", b =>
                 {
-                    b.HasOne("Admin", "Admin")
-                        .WithMany("ManagedBooks")
-                        .HasForeignKey("AdminID")
+                    b.HasOne("BookHaven.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -467,7 +596,7 @@ namespace BookHaven.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Admin");
+                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Publisher");
                 });
@@ -510,30 +639,32 @@ namespace BookHaven.Migrations
                     b.Navigation("Genre");
                 });
 
-            modelBuilder.Entity("BookHaven.Entities.Bookmark", b =>
+            modelBuilder.Entity("Bookmark", b =>
                 {
+                    b.HasOne("BookHaven.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Book", "Book")
                         .WithMany("Bookmarks")
                         .HasForeignKey("BookID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Member", "Member")
-                        .WithMany("Bookmarks")
-                        .HasForeignKey("MemberID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Book");
-
-                    b.Navigation("Member");
                 });
 
-            modelBuilder.Entity("BookHaven.Entities.CartItem", b =>
+            modelBuilder.Entity("CartItem", b =>
                 {
-                    b.HasOne("Admin", null)
+                    b.HasOne("BookHaven.Entities.ApplicationUser", "ApplicationUser")
                         .WithMany("CartItems")
-                        .HasForeignKey("AdminUserID");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Book", "Book")
                         .WithMany()
@@ -541,30 +672,71 @@ namespace BookHaven.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Member", "Member")
-                        .WithMany("CartItems")
-                        .HasForeignKey("MemberID")
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("BookHaven.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("BookHaven.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Book");
+                    b.HasOne("BookHaven.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("Member");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("BookHaven.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Order", b =>
                 {
-                    b.HasOne("Admin", null)
+                    b.HasOne("BookHaven.Entities.ApplicationUser", "ApplicationUser")
                         .WithMany("Orders")
-                        .HasForeignKey("AdminUserID");
-
-                    b.HasOne("Member", "Member")
-                        .WithMany("Orders")
-                        .HasForeignKey("MemberID")
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Member");
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("OrderItem", b =>
@@ -588,9 +760,11 @@ namespace BookHaven.Migrations
 
             modelBuilder.Entity("Review", b =>
                 {
-                    b.HasOne("Admin", null)
+                    b.HasOne("BookHaven.Entities.ApplicationUser", "ApplicationUser")
                         .WithMany("Reviews")
-                        .HasForeignKey("AdminUserID");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Book", "Book")
                         .WithMany("Reviews")
@@ -598,15 +772,9 @@ namespace BookHaven.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Member", "Member")
-                        .WithMany("Reviews")
-                        .HasForeignKey("MemberID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Book");
-
-                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("Author", b =>
@@ -625,6 +793,15 @@ namespace BookHaven.Migrations
                     b.Navigation("Reviews");
                 });
 
+            modelBuilder.Entity("BookHaven.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("CartItems");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("Reviews");
+                });
+
             modelBuilder.Entity("Genre", b =>
                 {
                     b.Navigation("BookGenres");
@@ -638,30 +815,6 @@ namespace BookHaven.Migrations
             modelBuilder.Entity("Publisher", b =>
                 {
                     b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("Admin", b =>
-                {
-                    b.Navigation("Announcements");
-
-                    b.Navigation("CartItems");
-
-                    b.Navigation("ManagedBooks");
-
-                    b.Navigation("Orders");
-
-                    b.Navigation("Reviews");
-                });
-
-            modelBuilder.Entity("Member", b =>
-                {
-                    b.Navigation("Bookmarks");
-
-                    b.Navigation("CartItems");
-
-                    b.Navigation("Orders");
-
-                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }
