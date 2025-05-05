@@ -1,48 +1,61 @@
 using BookHaven.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookHaven.Services
 {
     public class UserService : IUserService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public UserService(ApplicationDbContext context)
+        public UserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
-            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        public async Task<User> RegisterAsync(User user)
+        public async Task<ApplicationUser> RegisterAsync(ApplicationUser user, string password)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var result = await _userManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
+            }
+
             return user;
         }
 
-        public async Task<User?> LoginAsync(string email, string password)
+        public async Task<ApplicationUser?> LoginAsync(string email, string password)
         {
-            return await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user != null)
+            {
+                var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+                if (result.Succeeded)
+                    return user;
+            }
+            return null;
         }
 
-        public async Task<List<Member>> GetAllMembersAsync()
+        public async Task<ApplicationUser?> FindByEmailAsync(string email)
         {
-            return await _context.Members.ToListAsync();
+            return await _userManager.FindByEmailAsync(email);
         }
 
-        public async Task<List<Admin>> GetAllAdminsAsync()
+        public async Task<ApplicationUser?> GetByIdAsync(string id)
         {
-            return await _context.Admins.ToListAsync();
+            return await _userManager.FindByIdAsync(id);
         }
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<List<ApplicationUser>> GetAllUsersAsync()
         {
-            return await _context.Users.FindAsync(id);
+            return await _userManager.Users.ToListAsync();
         }
 
-        public async Task<User?> FindByEmailAsync(string email)
+        public async Task<List<ApplicationUser>> GetAllByRoleAsync(string role)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _userManager.GetUsersInRoleAsync(role) as List<ApplicationUser>;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35931.197 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookHaven", "BookHaven.csproj", "{F2ECAFB3-EA12-F650-DF83-37B37D6D8F53}"
 EndProject
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {076C094D-B0C2-4B1F-929E-2CD436B0E129}
+		SolutionGuid = {D9DB1FF1-4D6B-40BD-989E-6F7089AFFC4E}
 	EndGlobalSection
 EndGlobal

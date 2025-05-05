@@ -1,3 +1,5 @@
+using BookHaven.Entities;
+
 public class Announcement
 {
     public int AnnouncementID { get; set; }
@@ -7,6 +9,7 @@ public class Announcement
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 
-    public int CreatedBy { get; set; } // AdminID
-    public Admin Admin { get; set; }
+    public string ApplicationUserId { get; set; } // Admin User
+    public ApplicationUser ApplicationUser { get; set; }
 }
+
