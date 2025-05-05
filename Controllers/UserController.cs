@@ -41,7 +41,7 @@ namespace BookHaven.Controllers
             {
                 FullName = request.Name,
                 Email = request.Email,
-                UserName = request.Email, // Required by Identity
+                UserName = request.Name, // Required by Identity
                 Role = request.Role,
                 MembershipId = Guid.NewGuid().ToString(),
                 SuccessfulOrderCount = 0
@@ -63,15 +63,15 @@ namespace BookHaven.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            // Step 1: Validate the user
+            // Validate the user
             var user = await _userService.LoginAsync(request.Email, request.Password);
             if (user == null)
                 return Unauthorized("Invalid credentials.");
 
-            // Step 2: Generate the JWT token for the logged-in user
-            var token = _userService.GenerateJwtToken(user); // Use the correct `user` object here
+            // Generate the JWT token for the logged-in user
+            var token = _userService.GenerateJwtToken(user);
 
-            // Step 3: Return the response with the token
+            // Return the response with the token
             var response = new UserResponse
             {
                 UserID = user.Id,
