@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using BookHaven.Entities;
 using BookHaven.Services;
+using BookHaven.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 // Register services
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookService, BookService>();
+
 
 // Add controllers and swagger
 builder.Services.AddControllers();
