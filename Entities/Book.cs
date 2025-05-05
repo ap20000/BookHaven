@@ -1,3 +1,5 @@
+using BookHaven.Entities;
+
 public class Book
 {
     public int BookID { get; set; }
@@ -13,8 +15,8 @@ public class Book
     public int PublisherID { get; set; }
     public Publisher Publisher { get; set; }
 
-    public int AdminID { get; set; }
-    public Admin Admin { get; set; }
+    public string ApplicationUserId { get; set; }  // Admin User
+    public ApplicationUser ApplicationUser { get; set; }
 
     public bool IsOnSale { get; set; }
     public DateTime? SaleStartDate { get; set; }

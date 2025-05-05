@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using BookHaven.Entities;
-using BookHaven.Services.Interfaces;
 using BookHaven.DTOs;
+using BookHaven.Entities;
+using BookHaven.Services;
 
 namespace BookHaven.Controllers
 {
@@ -30,41 +30,22 @@ namespace BookHaven.Controllers
             if (existing != null)
                 return BadRequest("User with this email already exists.");
 
-            User newUser;
-            if (request.Role == "Member")
+            var newUser = new ApplicationUser
             {
-                newUser = new Member
-                {
-                    Name = request.Name,
-                    Email = request.Email,
-                    Password = request.Password,
-                    Role = "Member",
-                    Phone = request.Phone,
-                    MembershipID = Guid.NewGuid().ToString(),
-                    TotalOrdersCount = 0
-                };
-            }
-            else if (request.Role == "Admin")
-            {
-                newUser = new Admin
-                {
-                    Name = request.Name,
-                    Email = request.Email,
-                    Password = request.Password,
-                    Role = "Admin"
-                };
-            }
-            else
-            {
-                return BadRequest("Invalid role. Must be 'Member' or 'Admin'.");
-            }
+                FullName = request.Name,
+                Email = request.Email,
+                UserName = request.Email, // Required by Identity
+                Role = request.Role,
+                MembershipId = Guid.NewGuid().ToString(),
+                SuccessfulOrderCount = 0
+            };
 
-            var createdUser = await _userService.RegisterAsync(newUser);
+            var createdUser = await _userService.RegisterAsync(newUser, request.Password);
 
             var response = new UserResponse
             {
-                UserID = createdUser.UserID,
-                Name = createdUser.Name,
+                UserID = createdUser.Id,
+                Name = createdUser.FullName,
                 Email = createdUser.Email,
                 Role = createdUser.Role
             };
@@ -82,8 +63,8 @@ namespace BookHaven.Controllers
 
             var response = new UserResponse
             {
-                UserID = user.UserID,
-                Name = user.Name,
+                UserID = user.Id,
+                Name = user.FullName,
                 Email = user.Email,
                 Role = user.Role
             };
@@ -93,7 +74,7 @@ namespace BookHaven.Controllers
 
         // GET: api/user/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userService.GetByIdAsync(id);
             if (user == null)
@@ -101,8 +82,8 @@ namespace BookHaven.Controllers
 
             var response = new UserResponse
             {
-                UserID = user.UserID,
-                Name = user.Name,
+                UserID = user.Id,
+                Name = user.FullName,
                 Email = user.Email,
                 Role = user.Role
             };
@@ -110,35 +91,35 @@ namespace BookHaven.Controllers
             return Ok(response);
         }
 
-        // GET: api/user/members
-        [HttpGet("members")]
-        public async Task<IActionResult> GetAllMembers()
+        // GET: api/user/all
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllUsers()
         {
-            var members = await _userService.GetAllMembersAsync();
+            var users = await _userService.GetAllUsersAsync();
 
-            var responses = members.Select(m => new UserResponse
+            var responses = users.Select(u => new UserResponse
             {
-                UserID = m.UserID,
-                Name = m.Name,
-                Email = m.Email,
-                Role = m.Role
+                UserID = u.Id,
+                Name = u.FullName,
+                Email = u.Email,
+                Role = u.Role
             });
 
             return Ok(responses);
         }
 
-        // GET: api/user/admins
-        [HttpGet("admins")]
-        public async Task<IActionResult> GetAllAdmins()
+        // GET: api/user/role/{role}
+        [HttpGet("role/{role}")]
+        public async Task<IActionResult> GetUsersByRole(string role)
         {
-            var admins = await _userService.GetAllAdminsAsync();
+            var users = await _userService.GetAllByRoleAsync(role);
 
-            var responses = admins.Select(a => new UserResponse
+            var responses = users.Select(u => new UserResponse
             {
-                UserID = a.UserID,
-                Name = a.Name,
-                Email = a.Email,
-                Role = a.Role
+                UserID = u.Id,
+                Name = u.FullName,
+                Email = u.Email,
+                Role = u.Role
             });
 
             return Ok(responses);
