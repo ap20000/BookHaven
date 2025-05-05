@@ -12,11 +12,11 @@ public class Book
     public string Language { get; set; }
     public string Format { get; set; }
 
-    public int PublisherID { get; set; }
-    public Publisher Publisher { get; set; }
+    public int? PublisherID { get; set; }
+    public Publisher? Publisher { get; set; }
 
-    public int AdminID { get; set; }
-    public Admin Admin { get; set; }
+    public int? AdminID { get; set; }
+    public Admin? Admin { get; set; }
 
     public bool IsOnSale { get; set; }
     public DateTime? SaleStartDate { get; set; }

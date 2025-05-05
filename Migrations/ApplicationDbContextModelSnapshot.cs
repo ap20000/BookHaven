@@ -82,7 +82,7 @@ namespace BookHaven.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BookID"));
 
-                    b.Property<int>("AdminID")
+                    b.Property<int?>("AdminID")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
@@ -110,7 +110,7 @@ namespace BookHaven.Migrations
                     b.Property<DateTime>("PublicationDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("PublisherID")
+                    b.Property<int?>("PublisherID")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("SaleEndDate")
@@ -454,15 +454,11 @@ namespace BookHaven.Migrations
                 {
                     b.HasOne("Admin", "Admin")
                         .WithMany("ManagedBooks")
-                        .HasForeignKey("AdminID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AdminID");
 
                     b.HasOne("Publisher", "Publisher")
                         .WithMany("Books")
-                        .HasForeignKey("PublisherID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PublisherID");
 
                     b.Navigation("Admin");
 

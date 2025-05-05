@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using BookHaven.Entities;
 using BookHaven.Services;
+using BookHaven.Services.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookService, BookService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
