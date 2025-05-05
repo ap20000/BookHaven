@@ -6,6 +6,10 @@
 # dotenv files
 .env
 
+# Ignore build output
+bin/
+obj/
+
 # User-specific files
 *.rsuser
 *.suo
