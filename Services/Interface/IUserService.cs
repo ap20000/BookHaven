@@ -10,4 +10,6 @@ public interface IUserService
     Task<ApplicationUser?> GetByIdAsync(string id);
     Task<List<ApplicationUser>> GetAllUsersAsync();
     Task<List<ApplicationUser>> GetAllByRoleAsync(string role);
+
+    string GenerateJwtToken(ApplicationUser user); 
 }

@@ -1,4 +1,3 @@
-// DTOs/RegisterRequest.cs
 namespace BookHaven.DTOs
 {
     public class RegisterRequest

@@ -1,7 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using BookHaven.DTOs;
 using BookHaven.Entities;
-using BookHaven.Services;
+using BookHaven.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace BookHaven.Controllers
 {
@@ -10,16 +15,20 @@ namespace BookHaven.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly JwtOptions _jwtOptions;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IOptions<JwtOptions> jwtOptions)
         {
             _userService = userService;
+            _jwtOptions = jwtOptions.Value;
         }
 
         // POST: api/user/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            request.Name = request.Name.Replace(" ", "");
+
             if (!request.Email.Contains("@"))
                 return BadRequest("Invalid email format.");
 
@@ -34,7 +43,7 @@ namespace BookHaven.Controllers
             {
                 FullName = request.Name,
                 Email = request.Email,
-                UserName = request.Email, // Required by Identity
+                UserName = request.Name, // Required by Identity
                 Role = request.Role,
                 MembershipId = Guid.NewGuid().ToString(),
                 SuccessfulOrderCount = 0
@@ -53,24 +62,30 @@ namespace BookHaven.Controllers
             return Ok(response);
         }
 
-        // POST: api/user/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            // Validate the user
             var user = await _userService.LoginAsync(request.Email, request.Password);
             if (user == null)
                 return Unauthorized("Invalid credentials.");
 
+            // Generate the JWT token for the logged-in user
+            var token = _userService.GenerateJwtToken(user);
+
+            // Return the response with the token
             var response = new UserResponse
             {
                 UserID = user.Id,
                 Name = user.FullName,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                Token = token // Attach the JWT token to the response
             };
 
             return Ok(response);
         }
+
 
         // GET: api/user/{id}
         [HttpGet("{id}")]
