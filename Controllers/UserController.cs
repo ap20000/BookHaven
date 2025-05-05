@@ -27,6 +27,8 @@ namespace BookHaven.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            request.Name = request.Name.Replace(" ", "");
+
             if (!request.Email.Contains("@"))
                 return BadRequest("Invalid email format.");
 
