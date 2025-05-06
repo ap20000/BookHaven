@@ -1,3 +1,5 @@
+using BookHaven.DTOs;
+
 public interface IUserService
 {
     Task<User> RegisterAsync(User user);
@@ -6,6 +8,8 @@ public interface IUserService
     Task<List<Admin>> GetAllAdminsAsync();
     Task<User?> FindByEmailAsync(string email);
     Task<User?> GetByIdAsync(int id);
+    Task<bool> DeleteUserAsync(int userId);
 
+    Task<User?> UpdateUserAsync(int userId, UpdateProfileRequest request);
 
 }
