@@ -2,10 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using BookHaven.DTOs;
 using BookHaven.Entities;
 using BookHaven.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.Extensions.Options;
 
 namespace BookHaven.Controllers
