@@ -15,8 +15,8 @@ public class Book
     public int? PublisherID { get; set; }
     public Publisher? Publisher { get; set; }
 
-    public string ApplicationUserId { get; set; }  // Admin User
-    public ApplicationUser ApplicationUser { get; set; }
+    public string? ApplicationUserId { get; set; }  // Admin User
+    public ApplicationUser? ApplicationUser { get; set; }
 
     public bool IsOnSale { get; set; }
     public DateTime? SaleStartDate { get; set; }
