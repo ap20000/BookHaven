@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using BookHaven.Entities;
 using BookHaven.Services;
+using BookHaven.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,6 +38,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Register services
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookService, BookService>();
+
 
 // Add controllers and swagger
 builder.Services.AddControllers();
