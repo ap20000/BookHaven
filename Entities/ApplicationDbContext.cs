@@ -21,6 +21,9 @@ namespace BookHaven.Entities
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
 
+       
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
