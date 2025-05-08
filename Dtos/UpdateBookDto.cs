@@ -11,8 +11,7 @@
         public string Language { get; set; }
         public string Format { get; set; }
 
-        //public int? PublisherID { get; set; }  
-        //public int? AdminID { get; set; }     
+        public int PublisherID { get; set; }  
         public bool? IsOnSale { get; set; }
         public DateTime? SaleStartDate { get; set; }
         public DateTime? SaleEndDate { get; set; }
