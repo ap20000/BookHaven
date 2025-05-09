@@ -8,6 +8,7 @@ namespace BookHaven.Entities
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
+        public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Bookmark> Bookmarks { get; set; }
