@@ -1,88 +1,92 @@
-﻿using BookHaven.DTOs;
+﻿
+using BookHaven.DTOs;
 using BookHaven.Entities;
 using BookHaven.Services.Interface;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
-public class OrderService : IOrderService
+namespace BookHaven.Services
 {
-    private readonly ApplicationDbContext _context;
-
-    public OrderService(ApplicationDbContext context)
+    public class OrderService : IOrderService
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public async Task<int> PlaceOrderAsync(string userId, PlaceOrderRequest request)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user == null) throw new Exception("User not found");
-
-        var order = new Order
+        public OrderService(ApplicationDbContext context)
         {
-            ApplicationUserId = userId,
-            OrderDate = DateTime.Now,
-            PickupStatus = "Pending",
-            ClaimCode = GenerateClaimCode(),
-            DiscountApplied = false,
-            DiscountPercent = CalculateDiscount(userId),
-            TotalAmount = CalculateTotalAmount(request.OrderItems),
-            OrderItems = request.OrderItems.Select(item => new OrderItem
+            _context = context;
+        }
+
+        public async Task<int> PlaceOrderAsync(string userId, PlaceOrderRequest request)
+        {
+            decimal total = 0;
+            var orderItems = new List<OrderItem>();
+            int totalQuantity = 0;
+
+            foreach (var item in request.Items)
             {
-                BookID = item.BookID,
-                Quantity = item.Quantity,
-                PriceAtPurchase = item.PriceAtPurchase
-            }).ToList()
-        };
+                var book = await _context.Books.FindAsync(item.BookID);
+                if (book == null) throw new Exception($"Book ID {item.BookID} not found.");
 
-        _context.Orders.Add(order);
-        await _context.SaveChangesAsync();
+                decimal price = book.Price * item.Quantity;
+                total += price;
+                totalQuantity += item.Quantity;
 
-        return order.OrderID;
-    }
+                orderItems.Add(new OrderItem
+                {
+                    BookID = book.BookID,
+                    Quantity = item.Quantity,
+                    PriceAtPurchase = book.Price
+                });
+            }
 
-    public async Task<bool> CancelOrderAsync(string userId, int orderId)
-    {
-        var order = await _context.Orders
-            .Where(o => o.OrderID == orderId && o.ApplicationUserId == userId)
-            .FirstOrDefaultAsync();
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) throw new Exception("User not found.");
 
-        if (order == null) return false;
+            // Determine discount
+            int discountPercent = 0;
 
-        _context.Orders.Remove(order);
-        await _context.SaveChangesAsync();
-        return true;
-    }
+            if (totalQuantity >= 5)
+            {
+                discountPercent += 5; // 5% for buying 5 or more books
+            }
 
-    private string GenerateClaimCode()
-    {
-        return Guid.NewGuid().ToString().Substring(0, 8);
-    }
+            if (user.SuccessfulOrderCount >= 10)
+            {
+                discountPercent += 10; // 10% stackable for 10+ successful orders
+            }
 
-    private decimal CalculateDiscount(string userId)
-    {
-        // Reward for 5+ books: 5% discount
-        var orderCount = _context.Orders.Count(o => o.ApplicationUserId == userId);
-        if (orderCount >= 10)
-        {
-            return 0.10m; // 10% discount for 10+ orders
+            var order = new Order
+            {
+                ApplicationUserId = userId,
+                OrderDate = DateTime.UtcNow,
+                PickupStatus = "Pending",
+                ClaimCode = Guid.NewGuid().ToString().Substring(0, 6).ToUpper(),
+                DiscountApplied = discountPercent > 0,
+                DiscountPercent = discountPercent,
+                TotalAmount = total * (1 - (discountPercent / 100m)),
+                Status = "Placed",
+                OrderItems = orderItems
+            };
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            return order.OrderID;
         }
-        else if (orderCount >= 5)
-        {
-            return 0.05m; // 5% discount for 5+ orders
-        }
-        return 0.00m;
-    }
 
-    private decimal CalculateTotalAmount(List<OrderItemRequest> items)
-    {
-        decimal totalAmount = 0;
-        foreach (var item in items)
+
+        public async Task<bool> CancelOrderAsync(string userId, int orderId)
         {
-            totalAmount += item.PriceAtPurchase * item.Quantity;
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId && o.ApplicationUserId == userId);
+
+            if (order == null || order.PickupStatus != "Pending") return false;
+
+            _context.OrderItems.RemoveRange(order.OrderItems);
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
-        return totalAmount;
     }
 }
