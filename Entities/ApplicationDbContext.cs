@@ -8,6 +8,7 @@ namespace BookHaven.Entities
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
+        public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Bookmark> Bookmarks { get; set; }
@@ -20,6 +21,9 @@ namespace BookHaven.Entities
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+
+       
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
