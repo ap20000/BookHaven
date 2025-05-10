@@ -6,6 +6,10 @@
 # dotenv files
 .env
 
+# Ignore build output
+bin/
+obj/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -482,3 +486,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+obj/
+bin/
