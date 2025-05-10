@@ -22,18 +22,37 @@ namespace BookHaven.Entities
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
 
-       
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // BookAuthor many-to-many
             modelBuilder.Entity<BookAuthor>()
                 .HasKey(ba => new { ba.BookID, ba.AuthorID });
 
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne(ba => ba.Book)
+                .WithMany(b => b.BookAuthors)
+                .HasForeignKey(ba => ba.BookID);
+
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne(ba => ba.Author)
+                .WithMany(a => a.BookAuthors)
+                .HasForeignKey(ba => ba.AuthorID);
+
+            // BookGenre many-to-many
             modelBuilder.Entity<BookGenre>()
                 .HasKey(bg => new { bg.BookID, bg.GenreID });
+
+            modelBuilder.Entity<BookGenre>()
+                .HasOne(bg => bg.Book)
+                .WithMany(b => b.BookGenres)
+                .HasForeignKey(bg => bg.BookID);
+
+            modelBuilder.Entity<BookGenre>()
+                .HasOne(bg => bg.Genre)
+                .WithMany(g => g.BookGenres)
+                .HasForeignKey(bg => bg.GenreID);
         }
     }
 }

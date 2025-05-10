@@ -126,8 +126,6 @@ namespace BookHaven.Migrations
 
                     b.HasKey("BookID");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("PublisherID");
 
                     b.ToTable("Books");
@@ -584,19 +582,11 @@ namespace BookHaven.Migrations
 
             modelBuilder.Entity("Book", b =>
                 {
-                    b.HasOne("BookHaven.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("Publisher", "Publisher")
+                    b.HasOne("Publisher", null)
                         .WithMany("Books")
                         .HasForeignKey("PublisherID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("Publisher");
                 });
 
             modelBuilder.Entity("BookAuthor", b =>
