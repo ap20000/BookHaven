@@ -2,11 +2,13 @@
 using BookHaven.Dtos;
 using BookHaven.Services;
 using BookHaven.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static BookHaven.Services.BookService;
 
 namespace BookHaven.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/book")]
     public class BookController(IBookService bookService) : Controller
