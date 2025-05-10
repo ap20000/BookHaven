@@ -1,9 +1,19 @@
-﻿namespace BookHaven.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BookHaven.DTOs
 {
     public class UpdateProfileRequest
     {
+        [Required]
         public string Name { get; set; }
-        public string? Phone { get; set; } // Only for Members
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        public string? Phone { get; set; }
+
+        [MinLength(6)]
         public string Password { get; set; }
     }
 }

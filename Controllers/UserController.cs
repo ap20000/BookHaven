@@ -103,7 +103,7 @@ namespace BookHaven.Controllers
         }
         // PUT: api/user/update/5
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfileRequest request)
+        public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
         {
             var updatedUser = await _userService.UpdateUserAsync(id, request);
             if (updatedUser == null)
@@ -111,11 +111,12 @@ namespace BookHaven.Controllers
 
             var response = new UserResponse
             {
-                UserID = updatedUser.UserID,
-                Name = updatedUser.Name,
+                UserID = updatedUser.Id,
+                Name = updatedUser.FullName,
                 Email = updatedUser.Email,
                 Role = updatedUser.Role
             };
+
 
             return Ok(response);
         }
@@ -142,7 +143,16 @@ namespace BookHaven.Controllers
         [HttpGet("role/{role}")]
         public async Task<IActionResult> GetUsersByRole(string role)
         {
-            var users = await _userService.GetAllByRoleAsync(role);
+            Console.WriteLine($"[DEBUG] GetUsersByRole called with role: {role}");
+
+            var normalizedRole = role.ToUpper();
+            var users = await _userService.GetAllByRoleAsync(normalizedRole);
+
+            if (users == null || !users.Any())
+            {
+                Console.WriteLine("[DEBUG] No users found for the given role.");
+                return NotFound("No users found.");
+            }
 
             var responses = users.Select(u => new UserResponse
             {
@@ -150,7 +160,9 @@ namespace BookHaven.Controllers
                 Name = u.FullName,
                 Email = u.Email,
                 Role = u.Role
-            });
+            }).ToList();
+
+            Console.WriteLine($"[DEBUG] Found {responses.Count} users.");
 
             return Ok(responses);
         }
