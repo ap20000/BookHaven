@@ -105,6 +105,25 @@ namespace BookHaven.Controllers
 
             return Ok(response);
         }
+        // PUT: api/user/update/5
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfileRequest request)
+        {
+            var updatedUser = await _userService.UpdateUserAsync(id, request);
+            if (updatedUser == null)
+                return NotFound("User not found.");
+
+            var response = new UserResponse
+            {
+                UserID = updatedUser.UserID,
+                Name = updatedUser.Name,
+                Email = updatedUser.Email,
+                Role = updatedUser.Role
+            };
+
+            return Ok(response);
+        }
+
 
         // GET: api/user/all
         [HttpGet("all")]
