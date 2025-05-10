@@ -11,5 +11,7 @@
         public int Stock { get; set; }
         public string Language { get; set; }
         public string Format { get; set; }
+        public int PublisherID { get; set; }
+        public string PublisherName { get; set; }
     }
 }

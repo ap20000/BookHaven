@@ -41,19 +41,16 @@ namespace BookHaven.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            try
-            {
-                var result = bookService.GetById(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var book = bookService.GetById(id);
+            if (book == null)
+                return NotFound("Book not found");
+
+            return Ok(book);
         }
+
 
         [HttpDelete("{id:int}")]
         public IActionResult DeleteBook(int id)
