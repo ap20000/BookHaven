@@ -10,6 +10,12 @@
         public decimal Price { get; set; }
         public int Stock { get; set; }
         public string Language { get; set; }
+
         public string Format { get; set; }
+        public bool IsOnSale { get; set; }
+        public DateTime? SaleStartDate { get; set; }
+        public DateTime? SaleEndDate { get; set; }
+
+
     }
 }

@@ -30,5 +30,26 @@ namespace BookHaven.Services
             }
 
         }
+
+        public IEnumerable<PublisherDto> GetAllPublishers()
+        {
+            return _context.Publishers
+                .Select(p => new PublisherDto
+                {
+                    PublisherID = p.PublisherID,
+                    Name = p.Name
+                })
+                .ToList();
+        }
+
+        public bool DeletePublisher(int id)
+        {
+            var publisher = _context.Publishers.Find(id);
+            if (publisher == null) return false;
+
+            _context.Publishers.Remove(publisher);
+            _context.SaveChanges();
+            return true;
+        }
     }
 }

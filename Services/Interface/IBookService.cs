@@ -15,9 +15,7 @@ namespace BookHaven.Services.Interface
         void UpdateBook(int id, UpdateBookDto bookDto);
 
         PaginatedResult<GetAllBookDto> BrowseCatalog(string? search, string? sortBy, int pageNumber, int pageSize);
-
-
-
+        PaginatedResult<GetAllBookDto> GetBooksByCategory(string category, int pageNumber, int pageSize); 
 
     }
 }

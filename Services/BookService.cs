@@ -64,7 +64,9 @@ namespace BookHaven.Services
                         Price = b.Price,
                         Stock = b.Stock,
                         Language = b.Language,
-                        Format = b.Format
+                        Format = b.Format,
+                       
+
                     });
                 }
                 return result;
@@ -93,7 +95,10 @@ namespace BookHaven.Services
                     Price = book.Price,
                     Stock = book.Stock,
                     Language = book.Language,
-                    Format = book.Format
+                    Format = book.Format,
+                    IsOnSale = book.IsOnSale,
+                    SaleStartDate = book.SaleStartDate,
+                    SaleEndDate = book.SaleEndDate
                 };
                 return result;
             }
@@ -189,7 +194,10 @@ namespace BookHaven.Services
                     Price = b.Price,
                     Stock = b.Stock,
                     Language = b.Language,
-                    Format = b.Format
+                    Format = b.Format,
+                     IsOnSale = b.IsOnSale,
+                    SaleStartDate = b.SaleStartDate,
+                    SaleEndDate = b.SaleEndDate
                 })
                 .ToList();
 
@@ -202,102 +210,79 @@ namespace BookHaven.Services
             };
         }
 
-        public class BookmarkService
+        public IQueryable<Book> FilterBooksByCategory(string category)
         {
-            private readonly ApplicationDbContext _context;
+            var now = DateTime.UtcNow;
+            var threeMonthsAgo = now.AddMonths(-3);
 
-            public BookmarkService(ApplicationDbContext context)
+            var query = _context.Books.AsQueryable();
+
+            switch (category.ToLower())
             {
-                _context = context;
+                case "all":
+                    break;
+
+                case "new releases":
+                    query = query.Where(b =>
+                        b.PublicationDate >= threeMonthsAgo &&
+                        b.PublicationDate <= now);
+                    break;
+
+                case "coming soon":
+                    query = query.Where(b => b.PublicationDate > now);
+                    break;
+
+                case "deals":
+                    query = query.Where(b =>
+                        b.IsOnSale &&
+                        b.SaleStartDate <= now &&
+                        (b.SaleEndDate == null || b.SaleEndDate >= now));
+                    break;
+
+                default:
+                    // Return no results for unsupported categories
+                    query = query.Where(b => false);
+                    break;
             }
 
-            public void AddBookmark(string userId, int bookId)
-            {
-                var exists = _context.Bookmarks.Any(b => b.ApplicationUserId == userId && b.BookID == bookId);
-                if (!exists)
-                {
-                    var bookmark = new Bookmark
-                    {
-                        BookID = bookId,
-                        ApplicationUserId = userId
-                    };
-                    _context.Bookmarks.Add(bookmark);
-                    _context.SaveChanges();
-                }
-            }
-
-            public List<Bookmark> GetBookmarks(string userId)
-            {
-                return _context.Bookmarks
-                    .Where(b => b.ApplicationUserId == userId)
-                    .Include(b => b.Book)
-                    .ToList();
-            }
-
-            public void RemoveBookmark(string userId, int bookId)
-            {
-                var bookmark = _context.Bookmarks
-                    .FirstOrDefault(b => b.ApplicationUserId == userId && b.BookID == bookId);
-                if (bookmark != null)
-                {
-                    _context.Bookmarks.Remove(bookmark);
-                    _context.SaveChanges();
-                }
-            }
+            return query;
         }
 
-        public class CartService
+        public PaginatedResult<GetAllBookDto> GetBooksByCategory(string category, int pageNumber, int pageSize)
         {
-            private readonly ApplicationDbContext _context;
+            var query = FilterBooksByCategory(category);
 
-            public CartService(ApplicationDbContext context)
-            {
-                _context = context;
-            }
+            var totalItems = query.Count();
 
-            public void AddToCart(string userId, int bookId, int quantity)
-            {
-                var item = _context.CartItems
-                    .FirstOrDefault(c => c.ApplicationUserId == userId && c.BookID == bookId);
-
-                if (item != null)
+            var books = query
+                .OrderByDescending(b => b.PublicationDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(b => new GetAllBookDto
                 {
-                    item.Quantity += quantity;
-                }
-                else
-                {
-                    item = new CartItem
-                    {
-                        BookID = bookId,
-                        ApplicationUserId = userId,
-                        Quantity = quantity
-                    };
-                    _context.CartItems.Add(item);
-                }
+                    BookID = b.BookID,
+                    Title = b.Title,
+                    ISBN = b.ISBN,
+                    Description = b.Description,
+                    PublicationDate = b.PublicationDate,
+                    Price = b.Price,
+                    Stock = b.Stock,
+                    Language = b.Language,
+                    Format = b.Format,
+                    IsOnSale = b.IsOnSale,
+                    SaleStartDate = b.SaleStartDate,
+                    SaleEndDate = b.SaleEndDate
 
-                _context.SaveChanges();
-            }
+                })
+                .ToList();
 
-            public List<CartItem> GetCart(string userId)
+            return new PaginatedResult<GetAllBookDto>
             {
-                return _context.CartItems
-                    .Where(c => c.ApplicationUserId == userId)
-                    .Include(c => c.Book)
-                    .ToList();
-            }
-
-            public void RemoveFromCart(string userId, int bookId)
-            {
-                var item = _context.CartItems
-                    .FirstOrDefault(c => c.ApplicationUserId == userId && c.BookID == bookId);
-
-                if (item != null)
-                {
-                    _context.CartItems.Remove(item);
-                    _context.SaveChanges();
-                }
-            }
+                Items = books,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalItems
+            };
         }
-
     }
 }
