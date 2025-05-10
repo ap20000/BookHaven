@@ -10,6 +10,9 @@
 bin/
 obj/
 
+# Ignore migrations
+migrations/
+
 # User-specific files
 *.rsuser
 *.suo
