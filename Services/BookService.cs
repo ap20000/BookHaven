@@ -27,9 +27,12 @@ namespace BookHaven.Services
                     Stock = addBookDto.Stock,
                     Language = addBookDto.Language,
                     Format = addBookDto.Format,
-                    //PublisherID = addBookDto.PublisherID,
-                    //AdminID = addBookDto.AdminID
-      
+                    PublisherID = addBookDto.PublisherID,
+                    ApplicationUserId = addBookDto.ApplicationUserId,
+                    IsOnSale = addBookDto.IsOnSale,
+                    SaleStartDate = addBookDto.SaleStartDate,
+                    SaleEndDate = addBookDto.SaleEndDate,
+
                 };
                 _context.Books.Add(book);
                 _context.SaveChanges();
@@ -132,8 +135,7 @@ namespace BookHaven.Services
                 book.Stock = bookDto.Stock;
                 book.Language = bookDto.Language;
                 book.Format = bookDto.Format;
-                //book.PublisherID = bookDto.PublisherID ?? book.PublisherID;
-                //book.AdminID = bookDto.AdminID ?? book.AdminID;
+                book.PublisherID = bookDto.PublisherID;
                 book.IsOnSale = bookDto.IsOnSale ?? book.IsOnSale;
                 book.SaleStartDate = bookDto.SaleStartDate;
                 book.SaleEndDate = bookDto.SaleEndDate;
