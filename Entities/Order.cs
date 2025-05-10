@@ -13,6 +13,7 @@ public class Order
     public bool DiscountApplied { get; set; }
     public int DiscountPercent { get; set; }
     public decimal TotalAmount { get; set; }
+    public string Status { get; set; }
 
     public ICollection<OrderItem> OrderItems { get; set; }
 }
