@@ -68,8 +68,9 @@ namespace BookHaven.Services
 
         public async Task<List<ApplicationUser>> GetAllByRoleAsync(string role)
         {
-            var usersInRole = await _userManager.GetUsersInRoleAsync(role);
-            return usersInRole.ToList();
+            return await _userManager.Users
+                .Where(u => u.Role.ToLower() == role.ToLower())
+                .ToListAsync();
         }
 
         public string GenerateJwtToken(ApplicationUser user)

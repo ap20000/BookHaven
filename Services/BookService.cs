@@ -81,11 +81,15 @@ namespace BookHaven.Services
         {
             try
             {
-                var book = _context.Books.FirstOrDefault(u => u.BookID == id);
-                if (book == null)
-                    throw new Exception("Book not found");
+                var book = _context.Books
+                    .Include(b => b.Publisher)
+                    .FirstOrDefault(b => b.BookID == id);
 
-                var result = new GetAllBookDto()
+
+                if (book == null)
+                    return null;
+
+                var result = new GetAllBookDto
                 {
                     BookID = book.BookID,
                     Title = book.Title,
@@ -100,13 +104,15 @@ namespace BookHaven.Services
                     SaleStartDate = book.SaleStartDate,
                     SaleEndDate = book.SaleEndDate
                 };
+
                 return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to get book by id" + ex.Message);
+                throw new Exception("Failed to get book by id: " + ex.Message);
             }
         }
+
 
         public void DeleteBook(int id)
         {

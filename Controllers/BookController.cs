@@ -2,11 +2,13 @@
 using BookHaven.Dtos;
 using BookHaven.Services;
 using BookHaven.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static BookHaven.Services.BookService;
 
 namespace BookHaven.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/book")]
     public class BookController(IBookService bookService) : Controller
@@ -39,19 +41,16 @@ namespace BookHaven.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            try
-            {
-                var result = bookService.GetById(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var book = bookService.GetById(id);
+            if (book == null)
+                return NotFound("Book not found");
+
+            return Ok(book);
         }
+
 
         [HttpDelete("{id:int}")]
         public IActionResult DeleteBook(int id)
