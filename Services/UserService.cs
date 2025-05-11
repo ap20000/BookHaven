@@ -97,27 +97,27 @@ namespace BookHaven.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<ApplicationUser?> UpdateUserAsync(string userId, UpdateProfileRequest request)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return null;
+        //public async Task<ApplicationUser?> UpdateUserAsync(string userId, UpdateProfileRequest request)
+        //{
+        //    var user = await _userManager.FindByIdAsync(userId);
+        //    if (user == null) return null;
 
-            user.UserName = request.Name ?? user.UserName;
-            user.Email = request.Email ?? user.Email;
+        //    user.UserName = request.Name ?? user.UserName;
+        //    user.Email = request.Email ?? user.Email;
 
-            if (!string.IsNullOrEmpty(request.Password))
-            {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var passwordResult = await _userManager.ResetPasswordAsync(user, token, request.Password);
-                if (!passwordResult.Succeeded)
-                {
-                    throw new Exception(string.Join("; ", passwordResult.Errors.Select(e => e.Description)));
-                }
-            }
+        //    if (!string.IsNullOrEmpty(request.Password))
+        //    {
+        //        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        //        var passwordResult = await _userManager.ResetPasswordAsync(user, token, request.Password);
+        //        if (!passwordResult.Succeeded)
+        //        {
+        //            throw new Exception(string.Join("; ", passwordResult.Errors.Select(e => e.Description)));
+        //        }
+        //    }
 
-            var updateResult = await _userManager.UpdateAsync(user);
-            return updateResult.Succeeded ? user : null;
-        }
+        //    var updateResult = await _userManager.UpdateAsync(user);
+        //    return updateResult.Succeeded ? user : null;
+        //}
 
         public async Task<bool> DeleteUserAsync(string userId)
         {

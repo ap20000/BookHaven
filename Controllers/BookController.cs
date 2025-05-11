@@ -80,53 +80,18 @@ namespace BookHaven.Controllers
             }
         }
 
-        [HttpGet("catalog")]
-        public IActionResult BrowseCatalog(
-            string? search = null,
-            string? sortBy = null,
-            int pageNumber = 1,
-            int pageSize = 10
-        )
+
+        [HttpGet("category/{category}")]
+        public IActionResult GetBooksByCategory(string category, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                  var result = bookService.BrowseCatalog(search, sortBy, pageNumber, pageSize);
-                  return Ok(result);
+                var result = bookService.GetBooksByCategory(category, pageNumber, pageSize);
+                return Ok(result); 
             }
             catch (Exception ex)
             {
-              return BadRequest(ex.Message);
-            }
-        }
-
-
-
-        
-        public class UserActionsController : ControllerBase
-        {
-            private readonly BookmarkService _bookmarkService;
-            private readonly CartService _cartService;
-
-            public UserActionsController(BookmarkService bookmarkService, CartService cartService)
-            {
-                _bookmarkService = bookmarkService;
-                _cartService = cartService;
-            }
-
-            [HttpPost("bookmark/{bookId}")]
-            public IActionResult AddBookmark(int bookId)
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _bookmarkService.AddBookmark(userId, bookId);
-                return Ok("Book bookmarked.");
-            }
-
-            [HttpPost("cart/{bookId}")]
-            public IActionResult AddToCart(int bookId, [FromQuery] int quantity = 1)
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _cartService.AddToCart(userId, bookId, quantity);
-                return Ok("Book added to cart.");
+                return BadRequest(new { message = ex.Message });
             }
         }
 
