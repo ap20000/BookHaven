@@ -19,7 +19,6 @@ namespace BookHaven.Controllers
             _jwtOptions = jwtOptions.Value;
         }
 
-        // POST: api/user/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -83,7 +82,6 @@ namespace BookHaven.Controllers
         }
 
 
-        // GET: api/user/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
@@ -101,13 +99,13 @@ namespace BookHaven.Controllers
 
             return Ok(response);
         }
-        // PUT: api/user/update/5
-        //[HttpPut("update/{id}")]
-        //public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
-        //{
-        //    var updatedUser = await _userService.UpdateUserAsync(id, request);
-        //    if (updatedUser == null)
-        //        return NotFound("User not found.");
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
+        {
+            var updatedUser = await _userService.UpdateUserAsync(id, request);
+            if (updatedUser == null)
+                return NotFound("User not found.");
 
         //    var response = new UserResponse
         //    {
@@ -122,7 +120,6 @@ namespace BookHaven.Controllers
         //}
 
 
-        // GET: api/user/all
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -139,7 +136,6 @@ namespace BookHaven.Controllers
             return Ok(responses);
         }
 
-        // GET: api/user/role/{role}
         [HttpGet("role/{role}")]
         public async Task<IActionResult> GetUsersByRole(string role)
         {

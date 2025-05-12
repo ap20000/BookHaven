@@ -11,7 +11,7 @@ public interface IUserService
     Task<ApplicationUser?> GetByIdAsync(string id);
     Task<List<ApplicationUser>> GetAllUsersAsync();
     Task<List<ApplicationUser>> GetAllByRoleAsync(string role);
-    //Task<ApplicationUser?> UpdateUserAsync(string userId, UpdateProfileRequest request);
+    Task<ApplicationUser?> UpdateUserAsync(string userId, UpdateProfileRequest request);
     Task<bool> DeleteUserAsync(string userId);
     string GenerateJwtToken(ApplicationUser user);
 }

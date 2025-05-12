@@ -1,4 +1,5 @@
 ﻿
+using BookHaven.Dtos;
 using BookHaven.DTOs;
 using BookHaven.Entities;
 using BookHaven.Services.Interface;
@@ -9,13 +10,12 @@ namespace BookHaven.Services
     public class OrderService : IOrderService
     {
         private readonly ApplicationDbContext _context;
-
         public OrderService(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public async Task<int> PlaceOrderAsync(string userId, PlaceOrderRequest request)
+        public async Task<Order> PlaceOrderAsync(string userId, PlaceOrderRequest request)
         {
             decimal total = 0;
             var orderItems = new List<OrderItem>();
@@ -43,15 +43,13 @@ namespace BookHaven.Services
 
             // Determine discount
             int discountPercent = 0;
-
             if (totalQuantity >= 5)
             {
-                discountPercent += 5; // 5% for buying 5 or more books
+                discountPercent += 5;
             }
-
             if (user.SuccessfulOrderCount >= 10)
             {
-                discountPercent += 10; // 10% stackable for 10+ successful orders
+                discountPercent += 10;
             }
 
             var order = new Order
@@ -70,9 +68,37 @@ namespace BookHaven.Services
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return order.OrderID;
+            return order; // returning full order
         }
 
+        public async Task<OrderSummaryDto> GetOrderByClaimCodeAsync(string claimCode)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Book)
+                .FirstOrDefaultAsync(o => o.ClaimCode == claimCode);
+
+            if (order == null) return null;
+
+            return new OrderSummaryDto
+            {
+                OrderID = order.OrderID,
+                ClaimCode = order.ClaimCode,
+                OrderDate = order.OrderDate,
+                PickupStatus = order.PickupStatus,
+                Status = order.Status, 
+                DiscountApplied = order.DiscountApplied, 
+                DiscountPercent = order.DiscountPercent,
+                TotalAmount = order.TotalAmount,
+                Items = order.OrderItems.Select(oi => new Dtos.OrderItemDto
+                {
+                    BookID = oi.BookID,
+                    Title = oi.Book.Title,
+                    Quantity = oi.Quantity,
+                    PriceAtPurchase = oi.PriceAtPurchase
+                }).ToList()
+            };
+        }
 
         public async Task<bool> CancelOrderAsync(string userId, int orderId)
         {
@@ -87,6 +113,35 @@ namespace BookHaven.Services
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<List<OrderSummaryDto>> GetOrdersByUserAsync(string userId)
+        {
+            var orders = await _context.Orders
+                .Where(o => o.ApplicationUserId == userId)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+
+            return orders.Select(order => new OrderSummaryDto
+            {
+                OrderID = order.OrderID,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status,
+                PickupStatus = order.PickupStatus,
+                DiscountApplied = order.DiscountApplied,
+                DiscountPercent = order.DiscountPercent,
+                ClaimCode = order.ClaimCode,
+                Items = order.OrderItems.Select(oi => new Dtos.OrderItemDto
+                {
+                    BookID = oi.BookID,
+                    Title = oi.Book.Title,
+                    Quantity = oi.Quantity,
+                    PriceAtPurchase = oi.PriceAtPurchase
+                }).ToList()
+            }).ToList();
         }
     }
 }
