@@ -13,14 +13,13 @@ public class AdminController : ControllerBase
     }
 
     [HttpDelete("delete-user/{userId}")]
-    public async Task<IActionResult> DeleteUser(int userId)
+    public async Task<IActionResult> DeleteUser(string userId)
     {
-        // Optional: Check if current user is Admin (based on authentication setup)
-
         var result = await _userService.DeleteUserAsync(userId);
+
         if (!result)
             return NotFound(new { message = "User not found." });
 
-    //    return Ok(new { message = "User deleted successfully." });
-    //}
+        return Ok(new { message = "User deleted successfully." }); // ✅ this was missing
+    }
 }
