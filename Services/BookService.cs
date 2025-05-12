@@ -185,9 +185,26 @@ namespace BookHaven.Services
                 book.Language = bookDto.Language;
                 book.Format = bookDto.Format;
                 book.PublisherID = bookDto.PublisherID;
-                book.IsOnSale = bookDto.IsOnSale ?? book.IsOnSale;
+                book.IsOnSale = bookDto.IsOnSale;
                 book.SaleStartDate = bookDto.SaleStartDate;
                 book.SaleEndDate = bookDto.SaleEndDate;
+                foreach (var authorId in bookDto.AuthorIDs)
+                {
+                    book.BookAuthors.Add(new BookAuthor
+                    {
+                        BookID = id,
+                        AuthorID = authorId
+                    });
+                }
+
+                foreach (var genreId in bookDto.GenreIDs)
+                {
+                    book.BookGenres.Add(new BookGenre
+                    {
+                        BookID = id,
+                        GenreID = genreId
+                    });
+                }
 
 
                 _context.Books.Update(book);
