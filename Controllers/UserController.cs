@@ -101,7 +101,7 @@ namespace BookHaven.Controllers
 
             return Ok(response);
         }
-        // PUT: api/user/update/5
+
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
         {
