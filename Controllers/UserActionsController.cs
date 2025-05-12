@@ -43,5 +43,30 @@ namespace BookHaven.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("cart/{userId}")]
+        public IActionResult GetCartItems(string userId)
+        {
+            try
+            {
+                var cartItems = _cartService.GetCartItems(userId);
+
+                var cartDto = cartItems.Select(item => new
+                {
+                    bookId = item.BookID,
+                    title = item.Book.Title,
+                    price = item.Book.Price,
+                    quantity = item.Quantity,
+                    total = item.Quantity * item.Book.Price,
+                    // coverImageUrl = item.Book.CoverImageUrl // if available
+                });
+
+                return Ok(cartDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error retrieving cart items: {ex.Message}");
+            }
+        }
     }
 }

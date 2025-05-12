@@ -91,5 +91,19 @@ namespace BookHaven.Controllers
                 return StatusCode(500, "An unexpected error occurred.");
             }
         }
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetOrdersByUser(string userId)
+        {
+            try
+            {
+                var orders = await _orderService.GetOrdersByUserAsync(userId);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to retrieve orders: {ex.Message}");
+            }
+        }
+
     }
 }
