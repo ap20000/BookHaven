@@ -15,12 +15,14 @@ namespace BookHaven.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IEmailService _emailService;
         private readonly ApplicationDbContext _context;
 
-
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService orderService, IEmailService emailService, ApplicationDbContext context)
         {
             _orderService = orderService;
+            _emailService = emailService;
+            _context = context;
         }
 
         [HttpPost("place")]
@@ -29,32 +31,54 @@ namespace BookHaven.Controllers
             var userId = User.FindFirst("userId")?.Value;
 
             if (string.IsNullOrEmpty(userId))
-            {
-                Console.WriteLine("[ERROR] userId claim not found in token.");
                 return Unauthorized("User identity not found.");
-            }
 
             if (request == null || request.Items == null || !request.Items.Any())
-            {
-                Console.WriteLine("[ERROR] Invalid or empty order request.");
                 return BadRequest("Order request is invalid.");
-            }
 
             try
             {
-                var orderId = await _orderService.PlaceOrderAsync(userId, request);
+                // Step 1: Place the order and get full order object
+                var order = await _orderService.PlaceOrderAsync(userId, request);
 
-                Console.WriteLine($"[DEBUG] Order placed for userId {userId}. OrderId: {orderId}");
+                // Step 2: Get user info from database
+                var user = await _context.Users.FindAsync(userId);
 
+                if (user != null)
+                {
+                    // Step 3: Format and send the email
+                    var emailBody = $@"
+Hi {user.FullName},
+
+Thank you for placing your order at BookHaven!
+
+🧾 Order ID: {order.OrderID}
+🔐 Claim Code: {order.ClaimCode}
+💵 Total: ${order.TotalAmount}
+
+Please bring your claim code to the counter to collect your books.
+
+Regards,  
+BookHaven Team";
+
+                    await _emailService.SendAsync(
+                        user.Email,
+                        "Your BookHaven Order Confirmation",
+                        emailBody
+                    );
+                }
+
+                // Step 4: Return success response with order info
                 return Ok(new
                 {
-                    OrderId = orderId,
-                    Message = "Order placed successfully."
+                    OrderId = order.OrderID,
+                    ClaimCode = order.ClaimCode,
+                    Message = "Order placed and confirmation email sent."
                 });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Exception while placing order: {ex.Message}");
+                Console.WriteLine($"[ERROR] {ex.Message}");
                 return StatusCode(500, "An unexpected error occurred while placing the order.");
             }
         }
@@ -66,11 +90,8 @@ namespace BookHaven.Controllers
             var userId = User.FindFirst("userId")?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                Console.WriteLine("[ERROR] userId claim not found in token.");
                 return Unauthorized("User identity not found.");
             }
-
-            Console.WriteLine($"[DEBUG] CancelOrder requested. UserId: {userId}, OrderId: {orderId}");
 
             try
             {
@@ -78,19 +99,17 @@ namespace BookHaven.Controllers
 
                 if (!result)
                 {
-                    Console.WriteLine($"[WARN] Cancellation failed for OrderId: {orderId} by UserId: {userId}");
                     return BadRequest("Order cannot be cancelled.");
                 }
 
-                Console.WriteLine($"[DEBUG] OrderId {orderId} cancelled by UserId: {userId}");
                 return Ok("Order cancelled successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Exception during cancellation: {ex.Message}");
                 return StatusCode(500, "An unexpected error occurred.");
             }
         }
+
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetOrdersByUser(string userId)
         {
@@ -104,6 +123,5 @@ namespace BookHaven.Controllers
                 return BadRequest($"Failed to retrieve orders: {ex.Message}");
             }
         }
-
     }
 }

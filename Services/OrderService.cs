@@ -16,7 +16,7 @@ namespace BookHaven.Services
             _context = context;
         }
 
-        public async Task<int> PlaceOrderAsync(string userId, PlaceOrderRequest request)
+        public async Task<Order> PlaceOrderAsync(string userId, PlaceOrderRequest request)
         {
             decimal total = 0;
             var orderItems = new List<OrderItem>();
@@ -44,15 +44,13 @@ namespace BookHaven.Services
 
             // Determine discount
             int discountPercent = 0;
-
             if (totalQuantity >= 5)
             {
-                discountPercent += 5; // 5% for buying 5 or more books
+                discountPercent += 5;
             }
-
             if (user.SuccessfulOrderCount >= 10)
             {
-                discountPercent += 10; // 10% stackable for 10+ successful orders
+                discountPercent += 10;
             }
 
             var order = new Order
@@ -71,8 +69,9 @@ namespace BookHaven.Services
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return order.OrderID;
+            return order; // returning full order
         }
+
 
 
         public async Task<bool> CancelOrderAsync(string userId, int orderId)
