@@ -3,7 +3,7 @@ using BookHaven.Entities;
 using BookHaven.Services;
 using BookHaven.Services.Interface;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -40,8 +40,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();
+builder.Services.AddScoped<IBookmarkService, BookmarkService>();
 
-
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 // Add controllers and swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -20,6 +20,7 @@ namespace BookHaven.Entities
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Purchase> Purchases { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
