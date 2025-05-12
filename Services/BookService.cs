@@ -34,6 +34,16 @@ namespace BookHaven.Services
                     SaleStartDate = addBookDto.SaleStartDate,
                     SaleEndDate = addBookDto.SaleEndDate,
 
+                    BookGenres = addBookDto.GenreIDs.Select(id => new BookGenre
+                    {
+                        GenreID = id
+                    }).ToList(),
+
+                    BookAuthors = addBookDto.AuthorIDs.Select(id => new BookAuthor
+                    {
+                        AuthorID = id
+                    }).ToList()
+
                 };
                 _context.Books.Add(book);
                 _context.SaveChanges();
@@ -45,46 +55,63 @@ namespace BookHaven.Services
 
         }
 
-        public List<GetAllBookDto> GetAllBooks()
+       public List<GetAllBookDto> GetAllBooks()
+{
+    try
+    {
+        var books = _context.Books
+            .Include(b => b.BookAuthors)
+                .ThenInclude(ba => ba.Author)
+            .Include(b => b.BookGenres)
+                .ThenInclude(bg => bg.Genre)
+            .ToList();
+
+        var result = books.Select(b => new GetAllBookDto
         {
-            try
+            BookID = b.BookID,
+            Title = b.Title,
+            ISBN = b.ISBN,
+            Description = b.Description,
+            PublicationDate = b.PublicationDate,
+            Price = b.Price,
+            Stock = b.Stock,
+            Language = b.Language,
+            Format = b.Format,
+            IsOnSale = b.IsOnSale,
+            SaleStartDate = b.SaleStartDate,
+            SaleEndDate = b.SaleEndDate,
+            PublisherID = b.PublisherID,
+            Authors = b.BookAuthors.Select(ba => new AuthorDto
             {
-
-                var book = _context.Books;
-                var result = new List<GetAllBookDto>();
-                foreach (var b in book)
-                {
-                    result.Add(new GetAllBookDto
-                    {
-                        BookID = b.BookID,
-                        Title = b.Title,
-                        ISBN = b.ISBN,
-                        Description = b.Description,
-                        PublicationDate = b.PublicationDate,
-                        Price = b.Price,
-                        Stock = b.Stock,
-                        Language = b.Language,
-                        Format = b.Format,
-                       
-
-                    });
-                }
-                return result;
-            }
-            catch (Exception ex)
+                AuthorID = ba.Author.AuthorID,
+                Name = ba.Author.Name
+            }).ToList(),
+            Genres = b.BookGenres.Select(bg => new GenreDto
             {
-                throw new Exception("Error getting all users" + ex.Message);
-            }
-        }
+                GenreID = bg.Genre.GenreID,
+                Name = bg.Genre.Name
+            }).ToList()
+        }).ToList();
+
+        return result;
+    }
+    catch (Exception ex)
+    {
+        throw new Exception("Error getting all books: " + ex.Message);
+    }
+}
+
 
         public GetAllBookDto GetById(int id)
         {
             try
             {
                 var book = _context.Books
-                    .Include(b => b.Publisher)
+                    .Include(b => b.BookAuthors)
+                        .ThenInclude(ba => ba.Author)
+                    .Include(b => b.BookGenres)
+                        .ThenInclude(bg => bg.Genre)
                     .FirstOrDefault(b => b.BookID == id);
-
 
                 if (book == null)
                     return null;
@@ -102,7 +129,18 @@ namespace BookHaven.Services
                     Format = book.Format,
                     IsOnSale = book.IsOnSale,
                     SaleStartDate = book.SaleStartDate,
-                    SaleEndDate = book.SaleEndDate
+                    SaleEndDate = book.SaleEndDate,
+                    PublisherID = book.PublisherID,
+                    Authors = book.BookAuthors.Select(ba => new AuthorDto
+                    {
+                        AuthorID = ba.Author.AuthorID,
+                        Name = ba.Author.Name
+                    }).ToList(),
+                    Genres = book.BookGenres.Select(bg => new GenreDto
+                    {
+                        GenreID = bg.Genre.GenreID,
+                        Name = bg.Genre.Name
+                    }).ToList()
                 };
 
                 return result;
@@ -112,7 +150,6 @@ namespace BookHaven.Services
                 throw new Exception("Failed to get book by id: " + ex.Message);
             }
         }
-
 
         public void DeleteBook(int id)
         {
@@ -148,9 +185,26 @@ namespace BookHaven.Services
                 book.Language = bookDto.Language;
                 book.Format = bookDto.Format;
                 book.PublisherID = bookDto.PublisherID;
-                book.IsOnSale = bookDto.IsOnSale ?? book.IsOnSale;
+                book.IsOnSale = bookDto.IsOnSale;
                 book.SaleStartDate = bookDto.SaleStartDate;
                 book.SaleEndDate = bookDto.SaleEndDate;
+                foreach (var authorId in bookDto.AuthorIDs)
+                {
+                    book.BookAuthors.Add(new BookAuthor
+                    {
+                        BookID = id,
+                        AuthorID = authorId
+                    });
+                }
+
+                foreach (var genreId in bookDto.GenreIDs)
+                {
+                    book.BookGenres.Add(new BookGenre
+                    {
+                        BookID = id,
+                        GenreID = genreId
+                    });
+                }
 
 
                 _context.Books.Update(book);

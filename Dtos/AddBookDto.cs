@@ -16,5 +16,8 @@
         public bool IsOnSale { get; set; } = false;
         public DateTime? SaleStartDate { get; set; }
         public DateTime? SaleEndDate { get; set; }
+
+        public List<int> GenreIDs { get; set; } = new();
+        public List<int> AuthorIDs { get; set; } = new();
     }
 }
