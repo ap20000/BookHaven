@@ -20,6 +20,6 @@ public class AdminController : ControllerBase
         if (!result)
             return NotFound(new { message = "User not found." });
 
-        return Ok(new { message = "User deleted successfully." }); // ✅ this was missing
+        return Ok(new { message = "User deleted successfully." });
     }
 }

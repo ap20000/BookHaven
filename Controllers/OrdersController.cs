@@ -25,6 +25,25 @@ namespace BookHaven.Controllers
             _context = context;
         }
 
+        [HttpGet("claim/{claimCode}")]
+        [Authorize(Roles = "staff,admin")]
+        public async Task<IActionResult> GetOrderByClaimCode(string claimCode)
+        {
+            try
+            {
+                var order = await _orderService.GetOrderByClaimCodeAsync(claimCode);
+                if (order == null)
+                    return NotFound("No order found with this claim code.");
+
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
         [HttpPost("place")]
         public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request)
         {
@@ -48,18 +67,18 @@ namespace BookHaven.Controllers
                 {
                     // Step 3: Format and send the email
                     var emailBody = $@"
-Hi {user.FullName},
+                        Hi {user.FullName},
 
-Thank you for placing your order at BookHaven!
+                        Thank you for placing your order at BookHaven!
 
-🧾 Order ID: {order.OrderID}
-🔐 Claim Code: {order.ClaimCode}
-💵 Total: ${order.TotalAmount}
+                        🧾 Order ID: {order.OrderID}
+                        🔐 Claim Code: {order.ClaimCode}
+                        💵 Total: ${order.TotalAmount}
 
-Please bring your claim code to the counter to collect your books.
+                        Please bring your claim code to the counter to collect your books.
 
-Regards,  
-BookHaven Team";
+                        Regards,  
+                        BookHaven Team";
 
                     await _emailService.SendAsync(
                         user.Email,
@@ -82,6 +101,27 @@ BookHaven Team";
                 return StatusCode(500, "An unexpected error occurred while placing the order.");
             }
         }
+
+        [HttpPost("fulfill/{claimCode}")]
+        [Authorize(Roles = "staff,admin")]
+        public async Task<IActionResult> FulfillOrderByClaimCode(string claimCode)
+        {
+            if (string.IsNullOrWhiteSpace(claimCode))
+                return BadRequest("Claim code is required.");
+
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.ClaimCode == claimCode && o.PickupStatus == "Pending");
+
+            if (order == null)
+                return NotFound("Invalid or already fulfilled claim code.");
+
+            order.PickupStatus = "Fulfilled";
+            order.Status = "Completed";
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = $"Order with claim code {claimCode} fulfilled successfully." });
+        }
+
 
 
         [HttpPost("{orderId}/cancel")]

@@ -10,7 +10,6 @@ namespace BookHaven.Services
     public class OrderService : IOrderService
     {
         private readonly ApplicationDbContext _context;
-
         public OrderService(ApplicationDbContext context)
         {
             _context = context;
@@ -72,7 +71,34 @@ namespace BookHaven.Services
             return order; // returning full order
         }
 
+        public async Task<OrderSummaryDto> GetOrderByClaimCodeAsync(string claimCode)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Book)
+                .FirstOrDefaultAsync(o => o.ClaimCode == claimCode);
 
+            if (order == null) return null;
+
+            return new OrderSummaryDto
+            {
+                OrderID = order.OrderID,
+                ClaimCode = order.ClaimCode,
+                OrderDate = order.OrderDate,
+                PickupStatus = order.PickupStatus,
+                Status = order.Status, 
+                DiscountApplied = order.DiscountApplied, 
+                DiscountPercent = order.DiscountPercent,
+                TotalAmount = order.TotalAmount,
+                Items = order.OrderItems.Select(oi => new Dtos.OrderItemDto
+                {
+                    BookID = oi.BookID,
+                    Title = oi.Book.Title,
+                    Quantity = oi.Quantity,
+                    PriceAtPurchase = oi.PriceAtPurchase
+                }).ToList()
+            };
+        }
 
         public async Task<bool> CancelOrderAsync(string userId, int orderId)
         {
