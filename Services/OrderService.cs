@@ -1,4 +1,5 @@
 ﻿
+using BookHaven.Dtos;
 using BookHaven.DTOs;
 using BookHaven.Entities;
 using BookHaven.Services.Interface;
@@ -87,6 +88,35 @@ namespace BookHaven.Services
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<List<OrderSummaryDto>> GetOrdersByUserAsync(string userId)
+        {
+            var orders = await _context.Orders
+                .Where(o => o.ApplicationUserId == userId)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+
+            return orders.Select(order => new OrderSummaryDto
+            {
+                OrderID = order.OrderID,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status,
+                PickupStatus = order.PickupStatus,
+                DiscountApplied = order.DiscountApplied,
+                DiscountPercent = order.DiscountPercent,
+                ClaimCode = order.ClaimCode,
+                Items = order.OrderItems.Select(oi => new Dtos.OrderItemDto
+                {
+                    BookID = oi.BookID,
+                    Title = oi.Book.Title,
+                    Quantity = oi.Quantity,
+                    PriceAtPurchase = oi.PriceAtPurchase
+                }).ToList()
+            }).ToList();
         }
     }
 }
