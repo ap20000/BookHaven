@@ -7,5 +7,7 @@ namespace BookHaven.Services.Interface {
     Task<Order> PlaceOrderAsync(string userId, PlaceOrderRequest request);
     Task<bool> CancelOrderAsync(string userId, int orderId);
     Task<List<OrderSummaryDto>> GetOrdersByUserAsync(string userId);
+    Task<OrderSummaryDto> GetOrderByClaimCodeAsync(string claimCode);
+
     }
 }
