@@ -102,24 +102,24 @@ namespace BookHaven.Controllers
             return Ok(response);
         }
         // PUT: api/user/update/5
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
-        {
-            var updatedUser = await _userService.UpdateUserAsync(id, request);
-            if (updatedUser == null)
-                return NotFound("User not found.");
+        //[HttpPut("update/{id}")]
+        //public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
+        //{
+        //    var updatedUser = await _userService.UpdateUserAsync(id, request);
+        //    if (updatedUser == null)
+        //        return NotFound("User not found.");
 
-            var response = new UserResponse
-            {
-                UserID = updatedUser.Id,
-                Name = updatedUser.FullName,
-                Email = updatedUser.Email,
-                Role = updatedUser.Role
-            };
+        //    var response = new UserResponse
+        //    {
+        //        UserID = updatedUser.Id,
+        //        Name = updatedUser.FullName,
+        //        Email = updatedUser.Email,
+        //        Role = updatedUser.Role
+        //    };
 
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
 
 
         // GET: api/user/all
