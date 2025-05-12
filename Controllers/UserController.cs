@@ -2,10 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using BookHaven.DTOs;
 using BookHaven.Entities;
 using BookHaven.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.Extensions.Options;
 
 namespace BookHaven.Controllers
@@ -105,6 +101,26 @@ namespace BookHaven.Controllers
 
             return Ok(response);
         }
+        // PUT: api/user/update/5
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
+        {
+            var updatedUser = await _userService.UpdateUserAsync(id, request);
+            if (updatedUser == null)
+                return NotFound("User not found.");
+
+            var response = new UserResponse
+            {
+                UserID = updatedUser.Id,
+                Name = updatedUser.FullName,
+                Email = updatedUser.Email,
+                Role = updatedUser.Role
+            };
+
+
+            return Ok(response);
+        }
+
 
         // GET: api/user/all
         [HttpGet("all")]
@@ -127,7 +143,16 @@ namespace BookHaven.Controllers
         [HttpGet("role/{role}")]
         public async Task<IActionResult> GetUsersByRole(string role)
         {
-            var users = await _userService.GetAllByRoleAsync(role);
+            Console.WriteLine($"[DEBUG] GetUsersByRole called with role: {role}");
+
+            var normalizedRole = role.ToUpper();
+            var users = await _userService.GetAllByRoleAsync(normalizedRole);
+
+            if (users == null || !users.Any())
+            {
+                Console.WriteLine("[DEBUG] No users found for the given role.");
+                return NotFound("No users found.");
+            }
 
             var responses = users.Select(u => new UserResponse
             {
@@ -135,7 +160,9 @@ namespace BookHaven.Controllers
                 Name = u.FullName,
                 Email = u.Email,
                 Role = u.Role
-            });
+            }).ToList();
+
+            Console.WriteLine($"[DEBUG] Found {responses.Count} users.");
 
             return Ok(responses);
         }

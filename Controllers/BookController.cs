@@ -1,10 +1,14 @@
-﻿using BookHaven.Dtos;
+﻿using System.Security.Claims;
+using BookHaven.Dtos;
 using BookHaven.Services;
 using BookHaven.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static BookHaven.Services.BookService;
 
 namespace BookHaven.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/book")]
     public class BookController(IBookService bookService) : Controller
@@ -37,19 +41,16 @@ namespace BookHaven.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            try
-            {
-                var result = bookService.GetById(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var book = bookService.GetById(id);
+            if (book == null)
+                return NotFound("Book not found");
+
+            return Ok(book);
         }
+
 
         [HttpDelete("{id:int}")]
         public IActionResult DeleteBook(int id)
@@ -78,6 +79,23 @@ namespace BookHaven.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpGet("category/{category}")]
+        public IActionResult GetBooksByCategory(string category, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var result = bookService.GetBooksByCategory(category, pageNumber, pageSize);
+                return Ok(result); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
     }
 
 }
