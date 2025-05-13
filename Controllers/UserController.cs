@@ -107,17 +107,17 @@ namespace BookHaven.Controllers
             if (updatedUser == null)
                 return NotFound("User not found.");
 
-        //    var response = new UserResponse
-        //    {
-        //        UserID = updatedUser.Id,
-        //        Name = updatedUser.FullName,
-        //        Email = updatedUser.Email,
-        //        Role = updatedUser.Role
-        //    };
+            var response = new UserResponse
+            {
+                UserID = updatedUser.Id,
+                Name = updatedUser.FullName,
+                Email = updatedUser.Email,
+                Role = updatedUser.Role
+            };
 
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
 
         [HttpGet("all")]
