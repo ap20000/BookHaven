@@ -26,7 +26,7 @@ namespace BookHaven.Services
                 Message = request.Message,
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
-                ApplicationUserId = "adminUserId" // Assume admin user for now, replace accordingly
+                ApplicationUserId = request.ApplicationUserId
             };
 
             _context.Announcements.Add(announcement);
@@ -38,7 +38,6 @@ namespace BookHaven.Services
         public async Task<List<AnnouncementResponseDto>> GetActiveAnnouncementsAsync()
         {
             var activeAnnouncements = await _context.Announcements
-                .Where(a => a.StartDate <= DateTime.UtcNow && a.EndDate >= DateTime.UtcNow)
                 .ToListAsync();
 
             return activeAnnouncements.Select(a => new AnnouncementResponseDto
@@ -48,7 +47,7 @@ namespace BookHaven.Services
                 Message = a.Message,
                 StartDate = a.StartDate,
                 EndDate = a.EndDate,
-                ApplicationUserName = a.ApplicationUser?.UserName // Assuming admin user has a UserName
+                ApplicationUserId = a.ApplicationUserId 
             }).ToList();
         }
 
