@@ -8,12 +8,10 @@ namespace BookHaven.Services
     public class BookService : IBookService
     {
         private readonly ApplicationDbContext _context;
-
         public BookService(ApplicationDbContext context)
         {
             _context = context;
         }
-
         public void AddBook(AddBookDto addBookDto)
         {
             try
@@ -33,7 +31,7 @@ namespace BookHaven.Services
                     IsOnSale = addBookDto.IsOnSale,
                     SaleStartDate = addBookDto.SaleStartDate,
                     SaleEndDate = addBookDto.SaleEndDate,
-
+                    ImageUrl = addBookDto.ImageUrl
                 };
                 _context.Books.Add(book);
                 _context.SaveChanges();

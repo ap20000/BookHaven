@@ -16,5 +16,6 @@
         public bool IsOnSale { get; set; } = false;
         public DateTime? SaleStartDate { get; set; }
         public DateTime? SaleEndDate { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

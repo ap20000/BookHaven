@@ -14,6 +14,7 @@ public class Book
     public int PublisherID { get; set; }
     public string? ApplicationUserId { get; set; }  // Admin User
     public bool IsOnSale { get; set; }
+    public string? ImageUrl { get; set; }
     public DateTime? SaleStartDate { get; set; }
     public DateTime? SaleEndDate { get; set; }
     public ICollection<Review> Reviews { get; set; }
@@ -22,5 +23,4 @@ public class Book
     public ICollection<BookGenre> BookGenres { get; set; }
     public Publisher Publisher { get; set; }
     public ApplicationUser? ApplicationUser { get; set; } 
-
 }

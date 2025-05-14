@@ -15,23 +15,36 @@ public class ReviewService : IReviewService
 
     public async Task<bool> SubmitReviewAsync(string userId, ReviewDto reviewDto)
     {
+        // Ensure the user has purchased the book
         var orderItem = await _context.OrderItems
             .Where(oi => oi.Order.ApplicationUserId == userId && oi.BookID == reviewDto.BookID)
             .FirstOrDefaultAsync();
 
-        if (orderItem == null) return false; // Only allow review for purchased books
+        // If the user hasn't purchased the book, return false
+        if (orderItem == null) return false;
 
+        // Create a new Review object
         var review = new Review
         {
             ApplicationUserId = userId,
             BookID = reviewDto.BookID,
             Rating = reviewDto.Rating,
             Comment = reviewDto.Comment,
-            ReviewDate = DateTime.Now
+            ReviewDate = DateTime.UtcNow // Ensure ReviewDate is in UTC
         };
 
+        // Add the review to the database
         _context.Reviews.Add(review);
         await _context.SaveChangesAsync();
-        return true;
+
+        return true; // Successfully saved the review
+    }
+
+    public async Task<List<Review>> GetReviewsByBookIdAsync(int bookId)
+    {
+        return await _context.Reviews
+            .Where(r => r.BookID == bookId)
+            .Include(r => r.ApplicationUser)  // Include user information for username
+            .ToListAsync();
     }
 }
