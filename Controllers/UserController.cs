@@ -121,46 +121,48 @@ namespace BookHaven.Controllers
 
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var users = await _userService.GetAllUsersAsync();
-
-            var responses = users.Select(u => new UserResponse
+            public async Task<IActionResult> GetAllUsers()
             {
-                UserID = u.Id,
-                Name = u.FullName,
-                Email = u.Email,
-                Role = u.Role
-            });
+                var users = await _userService.GetAllUsersAsync();
 
-            return Ok(responses);
-        }
+                var responses = users.Select(u => new UserResponse
+                {
+                    UserID = u.Id,
+                    Name = u.FullName,
+                    Email = u.Email,
+                    Role = u.Role
+                });
 
-        [HttpGet("role/{role}")]
-        public async Task<IActionResult> GetUsersByRole(string role)
-        {
-            Console.WriteLine($"[DEBUG] GetUsersByRole called with role: {role}");
-
-            var normalizedRole = role.ToUpper();
-            var users = await _userService.GetAllByRoleAsync(normalizedRole);
-
-            if (users == null || !users.Any())
-            {
-                Console.WriteLine("[DEBUG] No users found for the given role.");
-                return NotFound("No users found.");
+                return Ok(responses);
             }
 
-            var responses = users.Select(u => new UserResponse
+            [HttpGet("role/{role}")]
+            public async Task<IActionResult> GetUsersByRole(string role)
             {
-                UserID = u.Id,
-                Name = u.FullName,
-                Email = u.Email,
-                Role = u.Role
-            }).ToList();
+                Console.WriteLine($"[DEBUG] GetUsersByRole called with role: {role}");
 
-            Console.WriteLine($"[DEBUG] Found {responses.Count} users.");
+                var normalizedRole = role.ToUpper();
+                var users = await _userService.GetAllByRoleAsync(normalizedRole);
 
-            return Ok(responses);
+                if (users == null || !users.Any())
+                {
+                    Console.WriteLine("[DEBUG] No users found for the given role.");
+                    return NotFound("No users found.");
+                }
+
+                var responses = users.Select(u => new UserResponse
+                {
+                    UserID = u.Id,
+                    Name = u.FullName,
+                    Email = u.Email,
+                    Role = u.Role
+                }).ToList();
+
+                Console.WriteLine($"[DEBUG] Found {responses.Count} users.");
+
+                return Ok(responses);
+            }
         }
     }
 }
+

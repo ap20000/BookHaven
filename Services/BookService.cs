@@ -8,12 +8,10 @@ namespace BookHaven.Services
     public class BookService : IBookService
     {
         private readonly ApplicationDbContext _context;
-
         public BookService(ApplicationDbContext context)
         {
             _context = context;
         }
-
         public void AddBook(AddBookDto addBookDto)
         {
             try
@@ -33,6 +31,7 @@ namespace BookHaven.Services
                     IsOnSale = addBookDto.IsOnSale,
                     SaleStartDate = addBookDto.SaleStartDate,
                     SaleEndDate = addBookDto.SaleEndDate,
+                    ImageUrl = addBookDto.ImageUrl
 
                     BookGenres = addBookDto.GenreIDs.Select(id => new BookGenre
                     {
@@ -43,7 +42,6 @@ namespace BookHaven.Services
                     {
                         AuthorID = id
                     }).ToList()
-
                 };
                 _context.Books.Add(book);
                 _context.SaveChanges();
@@ -188,24 +186,15 @@ namespace BookHaven.Services
                 book.IsOnSale = bookDto.IsOnSale;
                 book.SaleStartDate = bookDto.SaleStartDate;
                 book.SaleEndDate = bookDto.SaleEndDate;
-                foreach (var authorId in bookDto.AuthorIDs)
-                {
-                    book.BookAuthors.Add(new BookAuthor
-                    {
-                        BookID = id,
-                        AuthorID = authorId
-                    });
-                }
 
-                foreach (var genreId in bookDto.GenreIDs)
-                {
-                    book.BookGenres.Add(new BookGenre
-                    {
-                        BookID = id,
-                        GenreID = genreId
-                    });
-                }
-
+                //book.BookGenres = bookDto.GenreIDs.Select(id => new BookGenre
+                //{
+                //    GenreID = id
+                //}).ToList();
+                //book.BookAuthors = bookDto.AuthorIDs.Select(id => new BookAuthor
+                //{
+                //    AuthorID = id
+                //}).ToList();
 
                 _context.Books.Update(book);
                 _context.SaveChanges();

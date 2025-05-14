@@ -95,6 +95,9 @@ namespace BookHaven.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsOnSale")
                         .HasColumnType("boolean");
 

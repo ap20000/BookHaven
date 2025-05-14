@@ -9,7 +9,7 @@ public class Announcement
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 
-    public string ApplicationUserId { get; set; } // Admin User
+    public string ApplicationUserId { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
 }
 

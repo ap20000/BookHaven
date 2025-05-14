@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BookHaven.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/annoucement")]
     public class AnnouncementController : ControllerBase
     {
         private readonly IAnnouncementService _announcementService;
@@ -23,7 +23,6 @@ namespace BookHaven.Controllers
             if (request == null) return BadRequest("Invalid announcement details.");
 
             var announcementId = await _announcementService.CreateAnnouncementAsync(request);
-            // Corrected to reference a valid method
             return CreatedAtAction(nameof(GetActiveAnnouncements), new { id = announcementId }, new { Id = announcementId });
         }
 
