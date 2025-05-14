@@ -21,6 +21,6 @@ public class Book
     public ICollection<Bookmark> Bookmarks { get; set; }
     public ICollection<BookAuthor> BookAuthors { get; set; }
     public ICollection<BookGenre> BookGenres { get; set; }
-    public Publisher Publisher { get; set; }
+    public Publisher publisher { get; set; }
     public ApplicationUser? ApplicationUser { get; set; } 
 }

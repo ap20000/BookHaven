@@ -30,6 +30,28 @@ namespace BookHaven.Controllers
             }
         }
 
+        [HttpGet("bookmark/getBookmarks/{userId}")]
+        public IActionResult GetUserBookmarks(string userId)
+        {
+            var bookmarks = _bookmarkService.GetBookmarks(userId);
+            return Ok(bookmarks);
+        }
+
+        [HttpDelete("bookmark/{userId}/{bookId}")]
+        public IActionResult RemoveBookmark(string userId, int bookId)
+        {
+            try
+            {
+                _bookmarkService.RemoveBookmark(userId, bookId);
+                return Ok("Book removed from your bookmarks.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpPost("cart/{userId}/{bookId}")]
         public IActionResult AddToCart(string userId, int bookId, [FromQuery] int quantity = 1)
         {

@@ -8,7 +8,6 @@ using static BookHaven.Services.BookService;
 
 namespace BookHaven.Controllers
 {
-    //[Authorize]
     [ApiController]
     [Route("api/book")]
     public class BookController(IBookService bookService) : Controller
