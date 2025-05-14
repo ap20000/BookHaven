@@ -1,4 +1,4 @@
-using BookHaven.Entities;
+﻿using BookHaven.Entities;
 
 public class Book
 {
@@ -11,19 +11,16 @@ public class Book
     public int Stock { get; set; }
     public string Language { get; set; }
     public string Format { get; set; }
-
     public int PublisherID { get; set; }
-    public Publisher Publisher { get; set; }
-
-    public string ApplicationUserId { get; set; }  // Admin User
-    public ApplicationUser ApplicationUser { get; set; }
-
+    public string? ApplicationUserId { get; set; }  // Admin User
     public bool IsOnSale { get; set; }
     public DateTime? SaleStartDate { get; set; }
     public DateTime? SaleEndDate { get; set; }
-
     public ICollection<Review> Reviews { get; set; }
     public ICollection<Bookmark> Bookmarks { get; set; }
     public ICollection<BookAuthor> BookAuthors { get; set; }
     public ICollection<BookGenre> BookGenres { get; set; }
+    public Publisher publisher { get; set; }
+    public ApplicationUser? ApplicationUser { get; set; } 
+
 }

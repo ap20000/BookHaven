@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using BookHaven.DTOs;
 using BookHaven.Entities;
-using BookHaven.Services;
+using BookHaven.Options;
+using Microsoft.Extensions.Options;
 
 namespace BookHaven.Controllers
 {
@@ -10,16 +11,19 @@ namespace BookHaven.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly JwtOptions _jwtOptions;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IOptions<JwtOptions> jwtOptions)
         {
             _userService = userService;
+            _jwtOptions = jwtOptions.Value;
         }
 
-        // POST: api/user/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            request.Name = request.Name.Replace(" ", "");
+
             if (!request.Email.Contains("@"))
                 return BadRequest("Invalid email format.");
 
@@ -34,7 +38,7 @@ namespace BookHaven.Controllers
             {
                 FullName = request.Name,
                 Email = request.Email,
-                UserName = request.Email, // Required by Identity
+                UserName = request.Name, // Required by Identity
                 Role = request.Role,
                 MembershipId = Guid.NewGuid().ToString(),
                 SuccessfulOrderCount = 0
@@ -53,26 +57,31 @@ namespace BookHaven.Controllers
             return Ok(response);
         }
 
-        // POST: api/user/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            // Validate the user
             var user = await _userService.LoginAsync(request.Email, request.Password);
             if (user == null)
                 return Unauthorized("Invalid credentials.");
 
+            // Generate the JWT token for the logged-in user
+            var token = _userService.GenerateJwtToken(user);
+
+            // Return the response with the token
             var response = new UserResponse
             {
                 UserID = user.Id,
                 Name = user.FullName,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                Token = token // Attach the JWT token to the response
             };
 
             return Ok(response);
         }
 
-        // GET: api/user/{id}
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
@@ -91,38 +100,67 @@ namespace BookHaven.Controllers
             return Ok(response);
         }
 
-        // GET: api/user/all
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllUsers()
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateProfile(string id, [FromBody] UpdateProfileRequest request)
         {
-            var users = await _userService.GetAllUsersAsync();
+            var updatedUser = await _userService.UpdateUserAsync(id, request);
+            if (updatedUser == null)
+                return NotFound("User not found.");
 
-            var responses = users.Select(u => new UserResponse
+            var response = new UserResponse
             {
-                UserID = u.Id,
-                Name = u.FullName,
-                Email = u.Email,
-                Role = u.Role
-            });
+                UserID = updatedUser.Id,
+                Name = updatedUser.FullName,
+                Email = updatedUser.Email,
+                Role = updatedUser.Role
+            };
 
-            return Ok(responses);
+
+            return Ok(response);
         }
 
-        // GET: api/user/role/{role}
-        [HttpGet("role/{role}")]
-        public async Task<IActionResult> GetUsersByRole(string role)
-        {
-            var users = await _userService.GetAllByRoleAsync(role);
 
-            var responses = users.Select(u => new UserResponse
+        [HttpGet("all")]
+            public async Task<IActionResult> GetAllUsers()
             {
-                UserID = u.Id,
-                Name = u.FullName,
-                Email = u.Email,
-                Role = u.Role
-            });
+                var users = await _userService.GetAllUsersAsync();
 
-            return Ok(responses);
+                var responses = users.Select(u => new UserResponse
+                {
+                    UserID = u.Id,
+                    Name = u.FullName,
+                    Email = u.Email,
+                    Role = u.Role
+                });
+
+                return Ok(responses);
+            }
+
+            [HttpGet("role/{role}")]
+            public async Task<IActionResult> GetUsersByRole(string role)
+            {
+                Console.WriteLine($"[DEBUG] GetUsersByRole called with role: {role}");
+
+                var normalizedRole = role.ToUpper();
+                var users = await _userService.GetAllByRoleAsync(normalizedRole);
+
+                if (users == null || !users.Any())
+                {
+                    Console.WriteLine("[DEBUG] No users found for the given role.");
+                    return NotFound("No users found.");
+                }
+
+                var responses = users.Select(u => new UserResponse
+                {
+                    UserID = u.Id,
+                    Name = u.FullName,
+                    Email = u.Email,
+                    Role = u.Role
+                }).ToList();
+
+                Console.WriteLine($"[DEBUG] Found {responses.Count} users.");
+
+                return Ok(responses);
+            }
         }
     }
-}

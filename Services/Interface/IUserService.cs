@@ -1,6 +1,7 @@
+using BookHaven.DTOs;
 using BookHaven.Entities;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public interface IUserService
 {
@@ -10,4 +11,7 @@ public interface IUserService
     Task<ApplicationUser?> GetByIdAsync(string id);
     Task<List<ApplicationUser>> GetAllUsersAsync();
     Task<List<ApplicationUser>> GetAllByRoleAsync(string role);
+    Task<ApplicationUser?> UpdateUserAsync(string userId, UpdateProfileRequest request);
+    Task<bool> DeleteUserAsync(string userId);
+    string GenerateJwtToken(ApplicationUser user);
 }
