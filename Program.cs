@@ -70,7 +70,14 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
-    // 🔒 Add JWT Bearer support
+    // Add support for file upload in Swagger UI
+    options.MapType<IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+
+    // Add Bearer authentication in Swagger UI
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -97,6 +104,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -112,6 +120,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
