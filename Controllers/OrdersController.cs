@@ -11,7 +11,6 @@ namespace BookHaven.Controllers
 {
     [ApiController]
     [Route("api/orders")]
-    [Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;

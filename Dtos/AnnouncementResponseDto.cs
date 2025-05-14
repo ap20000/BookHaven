@@ -7,6 +7,8 @@
         public string Message { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string ApplicationUserName { get; set; } // Admin name
+
+        public string ApplicationUserId { get; set; }
+
     }
 }

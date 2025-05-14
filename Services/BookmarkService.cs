@@ -1,4 +1,5 @@
-﻿using BookHaven.Entities;
+﻿using BookHaven.Dtos;
+using BookHaven.Entities;
 using BookHaven.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,11 +32,36 @@ namespace BookHaven.Services
             _context.SaveChanges();
         }
 
-        public IEnumerable<Bookmark> GetBookmarks(string userId)
+      
+
+        public IEnumerable<BookmarkDto> GetBookmarks(string userId)
         {
-            return _context.Bookmarks.Include(b => b.Book)
-                                      .Where(b => b.ApplicationUserId == userId)
-                                      .ToList();
+            return _context.Bookmarks
+                .Where(b => b.ApplicationUserId == userId)
+                .Include(b => b.Book)
+                .Select(b => new BookmarkDto
+                {
+                    BookmarkID = b.BookmarkID,
+                    BookID = b.BookID,
+                    BookTitle = b.Book.Title,
+                    Description = b.Book.Description
+                })
+                .ToList();
         }
+
+
+        public void RemoveBookmark(string userId, int bookId)
+        {
+            var bookmark = _context.Bookmarks
+                .FirstOrDefault(b => b.ApplicationUserId == userId && b.BookID == bookId);
+
+            if (bookmark == null)
+                throw new Exception("Bookmark not found.");
+
+            _context.Bookmarks.Remove(bookmark);
+            _context.SaveChanges();
+        }
+
+
     }
 }
